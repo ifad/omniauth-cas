@@ -9,6 +9,8 @@ module OmniAuth
       # Custom Exceptions
       class MissingCASTicket < StandardError; end
       class InvalidCASTicket < StandardError; end
+      class MissingReturnURL < StandardError; end
+      class InvalidReturnURL < StandardError; end
 
       autoload :ServiceTicketValidator, 'omniauth/strategies/cas/service_ticket_validator'
       autoload :LogoutRequest, 'omniauth/strategies/cas/logout_request'
@@ -90,6 +92,8 @@ module OmniAuth
       def request_phase
         service_url = append_params(callback_url, return_url)
 
+        validate_service_url!(service_url)
+
         [
           302,
           {
@@ -137,6 +141,29 @@ module OmniAuth
       def validate_cas_setup
         if options.host.nil? || options.login_url.nil?
           raise ArgumentError.new(":host and :login_url MUST be provided")
+        end
+      end
+
+      # Checks that the callback URL is within the scope of the target
+      # service url, to protect against redirects to phishing pages.
+      #
+      def validate_service_url!(service_url)
+        service_url = Addressable::URI.parse(service_url)
+
+        return_url = service_url.query_values['url']
+
+        if return_url.empty?
+          fail!(:missing_return_url, MissingReturnURL.new('Missing Return URL'))
+        end
+
+        return_url = Addressable::URI.parse(return_url)
+
+        # Check that the return URL host, if present, is equal to the service
+        # URL host. If the return_url host is nil, it means this is a relative
+        # url - and we can accept it.
+        #
+        if !return_url.host.nil? && (return_url.host != service_url.host)
+          fail!(:invalid_return_url, InvalidReturnURL.new('Invalid Return URL'))
         end
       end
 
