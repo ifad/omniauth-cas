@@ -92,16 +92,18 @@ module OmniAuth
       def request_phase
         service_url = append_params(callback_url, return_url)
 
-        validate_service_url!(service_url)
-
-        [
-          302,
-          {
-            'Location' => login_url(service_url),
-            'Content-Type' => 'text/plain'
-          },
-          ["You are being redirected to CAS for sign-in."]
-        ]
+        if validate_service_url!(service_url)
+          [
+            302,
+            {
+              'Location' => login_url(service_url),
+              'Content-Type' => 'text/plain'
+            },
+            ["You are being redirected to CAS for sign-in."]
+          ]
+        else
+          [ 400, {}, [ "Bad request" ] ]
+        end
       end
 
       def on_sso_path?
@@ -154,6 +156,7 @@ module OmniAuth
 
         if return_url.empty?
           fail!(:missing_return_url, MissingReturnURL.new('Missing Return URL'))
+          return false
         end
 
         return_url = Addressable::URI.parse(return_url)
@@ -164,7 +167,10 @@ module OmniAuth
         #
         if !return_url.host.nil? && (return_url.host != service_url.host)
           fail!(:invalid_return_url, InvalidReturnURL.new('Invalid Return URL'))
+          return false
         end
+
+        return true
       end
 
       # Build a service-validation URL from +service+ and +ticket+.
