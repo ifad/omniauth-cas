@@ -183,12 +183,7 @@ module OmniAuth
       # Validate the Service Ticket
       # @return [Object] the validated Service Ticket
       def validate_service_ticket(ticket)
-        service_name = if options[:callback_url]
-          "#{options[:callback_url]}?ticket=#{ticket}"
-        else
-          callback_url
-        end
-        ServiceTicketValidator.new(self, options, service_name, ticket).call
+        ServiceTicketValidator.new(self, options, callback_url, ticket).call
       end
 
     private
