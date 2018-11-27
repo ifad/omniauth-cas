@@ -81,6 +81,14 @@ describe OmniAuth::Strategies::CAS, type: :strategy do
   describe 'GET /auth/cas' do
     let(:return_url) { 'http://example.org/admin/foo' }
 
+    context 'with a return url on a different host than the service url' do
+      before { get '/auth/cas?url=http://attack.example.org/' }
+
+      subject { last_response }
+
+      it { should be_bad_request }
+    end
+
     context 'with a referer' do
       let(:url) { '/auth/cas' }
 
