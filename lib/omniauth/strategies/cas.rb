@@ -128,10 +128,13 @@ module OmniAuth
         return unless options.url_by_request_host && \
           options.url_by_request_host.respond_to?(:fetch)
 
-        uri = options.url_by_request_host.fetch(request.host, nil)
-        return unless uri
+        uri = options.url_by_request_host.fetch(request.host)
 
         Addressable::URI.parse(uri).to_s
+      rescue
+        nil # When request.host is not defined or it raises,
+            # or when Addressable raises, we can only resort
+            # to the default.
       end
 
       def static_cas_url
