@@ -167,7 +167,7 @@ module OmniAuth
 
         return_url = service_url.query_values['url']
 
-        if return_url.empty?
+        if return_url.nil? || return_url.empty?
           fail!(:missing_return_url, MissingReturnURL.new('Missing Return URL'))
           return false
         end
