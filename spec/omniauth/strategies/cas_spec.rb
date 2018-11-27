@@ -79,7 +79,7 @@ describe OmniAuth::Strategies::CAS, type: :strategy do
   end
 
   describe 'GET /auth/cas' do
-    let(:return_url) { 'http://myapp.com/admin/foo' }
+    let(:return_url) { 'http://example.org/admin/foo' }
 
     context 'with a referer' do
       let(:url) { '/auth/cas' }
