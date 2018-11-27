@@ -70,6 +70,42 @@ describe OmniAuth::Strategies::CAS, type: :strategy do
         expect(provider.options).to include path:'/a/path'
       end
     end
+
+    context 'with a URL by host mapping' do
+      let(:params) { super().merge(
+        url: 'https://default.cas.host',
+        url_by_request_host: {
+          'host1.example.org': 'https://host1.cas.host',
+          'host2.example.org': 'https://host2.cas.host',
+        })
+      }
+
+      let(:request_host) { nil }
+
+      before do
+        allow_any_instance_of(MyCasProvider)
+          .to receive(:request)
+          .and_return(Rack::Request.new('HTTP_HOST' => request_host))
+      end
+
+      it { true }
+
+      context 'and an host in the map' do
+        let(:request_host) { 'host1.example.org' }
+
+        it 'returns the corresponding CAS host in the map' do
+          expect(subject).to eq('https://host1.cas.host')
+        end
+      end
+
+      context 'and an host not in the map' do
+        let(:request_host) { 'foo.bar' }
+
+        it 'returns the default CAS host' do
+          expect(subject).to eq('https://default.cas.host')
+        end
+      end
+    end
   end
 
   describe 'defaults' do

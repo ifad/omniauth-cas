@@ -120,14 +120,27 @@ module OmniAuth
       def cas_url
         extract_url if options['url']
         validate_cas_setup
-        @cas_url ||= begin
-          uri = Addressable::URI.new
-          uri.host = options.host
-          uri.scheme = options.ssl ? 'https' : 'http'
-          uri.port = options.port
-          uri.path = options.path
-          uri.to_s
-        end
+
+        by_host_cas_url || static_cas_url
+      end
+
+      def by_host_cas_url
+        return unless options.url_by_request_host && \
+          options.url_by_request_host.respond_to?(:fetch)
+
+        uri = options.url_by_request_host.fetch(request.host, nil)
+        return unless uri
+
+        Addressable::URI.parse(uri).to_s
+      end
+
+      def static_cas_url
+        uri = Addressable::URI.new
+        uri.host = options.host
+        uri.scheme = options.ssl ? 'https' : 'http'
+        uri.port = options.port
+        uri.path = options.path
+        uri.to_s
       end
 
       def extract_url

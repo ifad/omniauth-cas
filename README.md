@@ -69,6 +69,19 @@ Other configuration options:
                ExternalService.get(user_info[:user]).attributes
             }
     ```
+  * `url_by_request_host` - Optional. Hash keyed by request host, to use
+    different CAS Server URLs depending on the request host. *Requires* `url`
+    or `host` to be set anyway, that'll be used as defaults if no host
+    matches.
+
+    ```ruby
+    provider :cas,
+             url: 'https://cas.example.org',
+             url_by_request_host: {
+               'host1.example.org' => 'https://host1.cas.example.org',
+               'host2.example.org' => 'https://host2.cas.example.org',
+             }
+    ```
 
 Configurable options for values returned by CAS:
 
