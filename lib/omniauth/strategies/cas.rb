@@ -68,7 +68,7 @@ module OmniAuth
 
       extra do
         prune!(
-          raw_info.delete_if { |k, _v| AuthHashSchemaKeys.include?(k) }
+          raw_info.dup.delete_if { |k, _v| AuthHashSchemaKeys.include?(k) }
         )
       end
 
