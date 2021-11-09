@@ -85,8 +85,8 @@ describe OmniAuth::Strategies::CAS, type: :strategy do
       let(:params) { super().merge(
         url: 'https://default.cas.host',
         url_by_request_host: {
-          'host1.example.org': 'https://host1.cas.host',
-          'host2.example.org': 'https://host2.cas.host',
+          'host1.example.org' => 'https://host1.cas.host',
+          'host2.example.org' => 'https://host2.cas.host',
         })
       }
 
