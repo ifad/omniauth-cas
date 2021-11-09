@@ -1,9 +1,9 @@
 # OmniAuth CAS Strategy [![Gem Version][version_badge]][version] [![Build Status][travis_status]][travis]
 
-[version_badge]: https://badge.fury.io/rb/omniauth-cas.png
-[version]: http://badge.fury.io/rb/omniauth-cas
-[travis]: http://travis-ci.org/dlindahl/omniauth-cas
-[travis_status]: https://secure.travis-ci.org/dlindahl/omniauth-cas.png
+[version_badge]: https://badge.fury.io/rb/omniauth-cas.svg
+[version]: https://badge.fury.io/rb/omniauth-cas
+[travis]: https://travis-ci.org/dlindahl/omniauth-cas
+[travis_status]: https://secure.travis-ci.org/dlindahl/omniauth-cas.svg
 [releases]: https://github.com/dlindahl/omniauth-cas/releases
 
 This is a OmniAuth 1.0 compatible port of the previously available
@@ -58,6 +58,7 @@ Other configuration options:
   * `uid_field` - The user data attribute to use as your user's unique identifier. Defaults to `'user'` (which usually contains the user's login name).
   * `ca_path` - Optional when `ssl` is `true`. Sets path of a CA certification directory. See [Net::HTTP][net_http] for more details.
   * `disable_ssl_verification` - Optional when `ssl` is true. Disables verification.
+  * `merge_multivalued_attributes` - When set to `true` returns attributes with multiple values as arrays. Defaults to `false` and returns the last value as a string.
   * `on_single_sign_out` - Optional. Callback used when a [CAS 3.1 Single Sign Out][sso]
     request is received.
   * `fetch_raw_info` - Optional. Callback used to return additional "raw" user
@@ -65,9 +66,13 @@ Other configuration options:
 
     ```ruby
     provider :cas,
-             fetch_raw_info: lambda { |strategy, options, ticket, user_info|
-               ExternalService.get(user_info[:user]).attributes
-            }
+      fetch_raw_info: Proc.new { |strategy, opts, ticket, user_info, rawxml|
+        return {} if user_info.empty? || rawxml.nil? # Auth failed
+
+        extra_info = ExternalService.get(user_info[:user]).attributes
+        extra_info.merge!({'roles' => rawxml.xpath('//cas:roles').map(&:text)})
+        extra_info
+      }
     ```
   * `url_by_request_host` - Optional. Hash keyed by request host, to use
     different CAS Server URLs depending on the request host. *Requires* `url`
@@ -131,6 +136,6 @@ Special thanks go out to the following people
   * @rbq for README updates and OmniAuth 0.3 migration guide
 
 [old_omniauth_cas]: https://github.com/intridea/omniauth/blob/0-3-stable/oa-enterprise/lib/omniauth/strategies/cas.rb
-[document_up]: http://dlindahl.github.com/omniauth-cas/
-[net_http]: http://ruby-doc.org/stdlib-1.9.3/libdoc/net/http/rdoc/Net/HTTP.html
+[document_up]: https://dlindahl.github.io/omniauth-cas/
+[net_http]: https://ruby-doc.org/stdlib-1.9.3/libdoc/net/http/rdoc/Net/HTTP.html
 [sso]: https://wiki.jasig.org/display/CASUM/Single+Sign+Out
