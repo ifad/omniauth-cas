@@ -13,11 +13,23 @@ jobs:
     strategy:
       matrix:
         ruby-version: ['2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7', '3.0']
+        gemfile: [ omniauth_1, omniauth_2 ]
         experimental: [false]
 
         include:
           - ruby-version: 'head'
+            gemfile: omniauth_1
             experimental: true
+          - ruby-version: 'head'
+            gemfile: omniauth_2
+            experimental: true
+
+        exclude:
+          - ruby-version: '2.1'
+            gemfile: omniauth_2
+
+    env:
+      BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
 
     continue-on-error: ${{ matrix.experimental }}
 

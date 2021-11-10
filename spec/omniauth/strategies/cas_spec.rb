@@ -26,10 +26,10 @@ describe OmniAuth::Strategies::CAS, type: :strategy do
   end
 
   # TODO: Verify that these are even useful tests
-  shared_examples_for 'a CAS redirect response' do
+  shared_examples_for 'a CAS redirect response' do |http_method = :post|
     let(:redirect_params) { 'service=' + Rack::Utils.escape("http://example.org/auth/cas/callback?url=#{Rack::Utils.escape(return_url)}") }
 
-    before { get url, nil, request_env }
+    before { send(http_method, url, nil, request_env) }
 
     subject { last_response }
 
@@ -124,16 +124,44 @@ describe OmniAuth::Strategies::CAS, type: :strategy do
     it { should include('ssl' => true) }
   end
 
-  describe 'GET /auth/cas' do
-    let(:return_url) { 'http://example.org/admin/foo' }
+  if OmniAuth::VERSION < '2'
+    describe 'GET /auth/cas' do
+      let(:return_url) { 'http://example.org/admin/foo' }
 
-    context 'with a return url on a different host than the service url' do
-      before { get '/auth/cas?url=http://attack.example.org/' }
+      context 'with a referer' do
+        let(:url) { '/auth/cas' }
 
-      subject { last_response }
+        let(:request_env) { { 'HTTP_REFERER' => return_url } }
 
-      it { should be_bad_request }
+        it_behaves_like 'a CAS redirect response', :get
+      end
+
+      context 'with a return url on a different host than the service url' do
+        before { get '/auth/cas?url=http://attack.example.org/' }
+
+        subject { last_response }
+
+        it { should be_bad_request }
+      end
     end
+
+    describe 'GET /auth/cas/callback' do
+      context 'without a ticket' do
+        before { get '/auth/cas/callback' }
+
+        subject { last_response }
+
+        it { should be_redirect }
+
+        it 'redirects with a failure message' do
+          expect(subject.headers).to include 'Location' => '/auth/failure?message=no_ticket&strategy=cas'
+        end
+      end
+    end
+  end
+
+  describe 'POST /auth/cas' do
+    let(:return_url) { 'http://example.org/admin/foo' }
 
     context 'with a referer' do
       let(:url) { '/auth/cas' }
@@ -150,11 +178,19 @@ describe OmniAuth::Strategies::CAS, type: :strategy do
 
       it_behaves_like 'a CAS redirect response'
     end
+
+    context 'with a return url on a different host than the service url' do
+      before { post '/auth/cas?url=http://attack.example.org/' }
+
+      subject { last_response }
+
+      it { should be_bad_request }
+    end
   end
 
-  describe 'GET /auth/cas/callback' do
+  describe 'POST /auth/cas/callback' do
     context 'without a ticket' do
-      before { get '/auth/cas/callback' }
+      before { post '/auth/cas/callback' }
 
       subject { last_response }
 
@@ -169,7 +205,7 @@ describe OmniAuth::Strategies::CAS, type: :strategy do
       before do
         stub_request(:get, /^http:\/\/cas.example.org:8080?\/serviceValidate\?([^&]+&)?ticket=9391d/).
            to_return( body: File.read('spec/fixtures/cas_failure.xml') )
-        get '/auth/cas/callback?ticket=9391d'
+        post '/auth/cas/callback?ticket=9391d'
       end
 
       subject { last_response }
@@ -188,7 +224,7 @@ describe OmniAuth::Strategies::CAS, type: :strategy do
             .with { |request| @request_uri = request.uri.to_s }
             .to_return( body: File.read("spec/fixtures/#{xml_file_name}") )
 
-          get "/auth/cas/callback?ticket=593af&url=#{return_url}"
+          post "/auth/cas/callback?ticket=593af&url=#{return_url}"
         end
 
         it 'strips the ticket parameter from the callback URL' do
@@ -270,10 +306,8 @@ describe OmniAuth::Strategies::CAS, type: :strategy do
         it_behaves_like :successful_validation
       end
     end
-  end
 
-  describe 'POST /auth/cas/callback' do
-    describe 'with a Single Sign-Out logoutRequest' do
+    context 'with a Single Sign-Out logoutRequest' do
       let(:logoutRequest) do
         %Q[
           <samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion\" ID="123abc-1234-ab12-cd34-1234abcd" Version="2.0" IssueInstant="#{Time.now.to_s}">
