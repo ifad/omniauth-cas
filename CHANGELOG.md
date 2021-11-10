@@ -17,6 +17,15 @@ project adheres to [Semantic Versioning](http://semver.org/)
 * Forward success response to `fetch_raw_info` callback ([#51](https://github.com/dlindahl/omniauth-cas/pull/51))
 * Relax development dependencies to the latest versions
 
+## 1.2.1 (IFAD) - 2018-11-27
+
+* Safer request.host call
+
+## 1.2.0 (IFAD) - 2018-11-27
+
+* service_validator: use custom callback_url if provided
+* Add url_by_request_host option
+
 ## 1.1.1 - 2016-09-19
 
 ### Changed
