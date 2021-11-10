@@ -8,6 +8,8 @@ end
 
 require 'rack/test'
 require 'webmock/rspec'
+require 'omniauth/version'
 require 'omniauth-cas'
 
 OmniAuth.config.logger = Logger.new( '/dev/null' )
+OmniAuth.config.request_validation_phase = nil if OmniAuth::VERSION > '2'

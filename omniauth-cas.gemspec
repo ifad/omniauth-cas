@@ -15,10 +15,11 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Omniauth::Cas::VERSION
 
-  gem.add_dependency 'omniauth',                '~> 1.2'
+  gem.add_dependency 'omniauth',                '>= 1.2', '< 3'
   gem.add_dependency 'nokogiri',                '~> 1.5'
   gem.add_dependency 'addressable',             '~> 2.3'
 
+  gem.add_development_dependency 'appraisal'
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'webmock'
   gem.add_development_dependency 'rspec'
