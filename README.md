@@ -1,9 +1,10 @@
-# OmniAuth CAS Strategy [![Gem Version][version_badge]][version] [![Build Status][github_actions_status]][github_actions]
+# OmniAuth CAS Strategy [![Gem Version][version_badge]][version] [![Build Status][github_actions_status]][github_actions] [![Build Status][github_legacy_actions_status]][github_actions]
 
 [version_badge]: https://badge.fury.io/rb/omniauth-cas.svg
 [version]: https://badge.fury.io/rb/omniauth-cas
 [github_actions]: https://github.com/ifad/omniauth-cas/actions
-[github_actions_status]: https://github.com/ifad/omniauth-cas/actions/workflows/ci.yml/badge.svg
+[github_actions_status]: https://github.com/ifad/omniauth-cas/actions/workflows/ruby.yml/badge.svg
+[github_actions_legacy_status]: https://github.com/ifad/omniauth-cas/actions/workflows/legacy_ruby.yml/badge.svg
 [releases]: https://github.com/dlindahl/omniauth-cas/releases
 
 This is a OmniAuth 1.0 compatible port of the previously available
