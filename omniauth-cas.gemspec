@@ -15,6 +15,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Omniauth::Cas::VERSION
 
+  gem.required_ruby_version = '>= 2.2.0'
+
   gem.add_dependency 'omniauth',                '~> 1.2'
   gem.add_dependency 'nokogiri',                '~> 1.5'
   gem.add_dependency 'addressable',             '~> 2.3'
