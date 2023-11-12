@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Omniauth
   module Cas
     VERSION = '2.0.0'

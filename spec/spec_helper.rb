@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bundler/setup'
 require 'awesome_print'
 
@@ -8,6 +10,6 @@ end
 
 require 'rack/test'
 require 'webmock/rspec'
-require 'omniauth-cas'
+require 'omniauth_cas'
 
-OmniAuth.config.logger = Logger.new( '/dev/null' )
+OmniAuth.config.logger = Logger.new('/dev/null')

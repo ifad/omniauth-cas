@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'net/http'
 require 'net/https'
 require 'nokogiri'
@@ -6,7 +8,7 @@ module OmniAuth
   module Strategies
     class CAS
       class ServiceTicketValidator
-        VALIDATION_REQUEST_HEADERS = { 'Accept' => '*/*' }
+        VALIDATION_REQUEST_HEADERS = { 'Accept' => '*/*' }.freeze
 
         attr_reader :success_body
 
@@ -40,7 +42,7 @@ module OmniAuth
           parse_user_info(@success_body)
         end
 
-      private
+        private
 
         # Merges attributes with multiple values into an array if support is
         # enabled (disabled by default)
@@ -56,12 +58,13 @@ module OmniAuth
         # returns nil if given nil
         def parse_user_info(node)
           return nil if node.nil?
+
           {}.tap do |hash|
             node.children.each do |e|
               node_name = e.name.sub(/^cas:/, '')
-              unless e.kind_of?(Nokogiri::XML::Text) || node_name == 'proxies'
+              unless e.is_a?(Nokogiri::XML::Text) || node_name == 'proxies'
                 # There are no child elements
-                if e.element_children.count == 0
+                if e.element_children.count.zero?
                   hash[node_name] = attribute_value(hash, node_name, e.content)
                 elsif e.element_children.count
                   # JASIG style extra attributes
@@ -82,6 +85,7 @@ module OmniAuth
         # if the passed body is nil or if there is no such node.
         def find_authentication_success(body)
           return nil if body.nil? || body == ''
+
           begin
             doc = Nokogiri::XML(body)
             begin
