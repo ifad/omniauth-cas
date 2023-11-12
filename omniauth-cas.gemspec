@@ -20,5 +20,5 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'addressable', '~> 2.3'
   gem.add_dependency 'nokogiri',    '~> 1.5'
-  gem.add_dependency 'omniauth',    '~> 1.2'
+  gem.add_dependency 'omniauth',    '~> 2.1'
 end
