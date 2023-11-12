@@ -1,9 +1,10 @@
-# OmniAuth CAS Strategy [![Gem Version][version_badge]][version] [![Build Status][travis_status]][travis]
+# OmniAuth CAS Strategy [![Gem Version][version_badge]][version] [![Build Status][github_actions_status]][github_actions] [![Build Status][github_legacy_actions_status]][github_actions]
 
 [version_badge]: https://badge.fury.io/rb/omniauth-cas.svg
 [version]: https://badge.fury.io/rb/omniauth-cas
-[travis]: https://travis-ci.org/dlindahl/omniauth-cas
-[travis_status]: https://secure.travis-ci.org/dlindahl/omniauth-cas.svg
+[github_actions]: https://github.com/ifad/omniauth-cas/actions
+[github_actions_status]: https://github.com/ifad/omniauth-cas/actions/workflows/ruby.yml/badge.svg
+[github_actions_legacy_status]: https://github.com/ifad/omniauth-cas/actions/workflows/legacy_ruby.yml/badge.svg
 [releases]: https://github.com/dlindahl/omniauth-cas/releases
 
 This is a OmniAuth 1.0 compatible port of the previously available
@@ -73,6 +74,19 @@ Other configuration options:
         extra_info.merge!({'roles' => rawxml.xpath('//cas:roles').map(&:text)})
         extra_info
       }
+    ```
+  * `url_by_request_host` - Optional. Hash keyed by request host, to use
+    different CAS Server URLs depending on the request host. *Requires* `url`
+    or `host` to be set anyway, that'll be used as defaults if no host
+    matches.
+
+    ```ruby
+    provider :cas,
+             url: 'https://cas.example.org',
+             url_by_request_host: {
+               'host1.example.org' => 'https://host1.cas.example.org',
+               'host2.example.org' => 'https://host2.cas.example.org',
+             }
     ```
 
 Configurable options for values returned by CAS:

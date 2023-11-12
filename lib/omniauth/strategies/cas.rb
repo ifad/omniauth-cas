@@ -9,6 +9,8 @@ module OmniAuth
       # Custom Exceptions
       class MissingCASTicket < StandardError; end
       class InvalidCASTicket < StandardError; end
+      class MissingReturnURL < StandardError; end
+      class InvalidReturnURL < StandardError; end
 
       autoload :ServiceTicketValidator, 'omniauth/strategies/cas/service_ticket_validator'
       autoload :LogoutRequest, 'omniauth/strategies/cas/logout_request'
@@ -91,14 +93,18 @@ module OmniAuth
       def request_phase
         service_url = append_params(callback_url, return_url)
 
-        [
-          302,
-          {
-            'Location' => login_url(service_url),
-            'Content-Type' => 'text/plain'
-          },
-          ["You are being redirected to CAS for sign-in."]
-        ]
+        if validate_service_url!(service_url)
+          [
+            302,
+            {
+              'Location' => login_url(service_url),
+              'Content-Type' => 'text/plain'
+            },
+            ["You are being redirected to CAS for sign-in."]
+          ]
+        else
+          [ 400, {}, [ "Bad request" ] ]
+        end
       end
 
       def on_sso_path?
@@ -115,14 +121,30 @@ module OmniAuth
       def cas_url
         extract_url if options['url']
         validate_cas_setup
-        @cas_url ||= begin
-          uri = Addressable::URI.new
-          uri.host = options.host
-          uri.scheme = options.ssl ? 'https' : 'http'
-          uri.port = options.port
-          uri.path = options.path
-          uri.to_s
-        end
+
+        by_host_cas_url || static_cas_url
+      end
+
+      def by_host_cas_url
+        return unless options.url_by_request_host && \
+          options.url_by_request_host.respond_to?(:fetch)
+
+        uri = options.url_by_request_host.fetch(request.host)
+
+        Addressable::URI.parse(uri).to_s
+      rescue
+        nil # When request.host is not defined or it raises,
+            # or when Addressable raises, we can only resort
+            # to the default.
+      end
+
+      def static_cas_url
+        uri = Addressable::URI.new
+        uri.host = options.host
+        uri.scheme = options.ssl ? 'https' : 'http'
+        uri.port = options.port
+        uri.path = options.path
+        uri.to_s
       end
 
       def extract_url
@@ -139,6 +161,33 @@ module OmniAuth
         if options.host.nil? || options.login_url.nil?
           raise ArgumentError.new(":host and :login_url MUST be provided")
         end
+      end
+
+      # Checks that the callback URL is within the scope of the target
+      # service url, to protect against redirects to phishing pages.
+      #
+      def validate_service_url!(service_url)
+        service_url = Addressable::URI.parse(service_url)
+
+        return_url = service_url.query_values['url']
+
+        if return_url.nil? || return_url.empty?
+          fail!(:missing_return_url, MissingReturnURL.new('Missing Return URL'))
+          return false
+        end
+
+        return_url = Addressable::URI.parse(return_url)
+
+        # Check that the return URL host, if present, is equal to the service
+        # URL host. If the return_url host is nil, it means this is a relative
+        # url - and we can accept it.
+        #
+        if !return_url.host.nil? && (return_url.host != service_url.host)
+          fail!(:invalid_return_url, InvalidReturnURL.new('Invalid Return URL'))
+          return false
+        end
+
+        return true
       end
 
       # Build a service-validation URL from +service+ and +ticket+.
