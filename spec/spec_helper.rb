@@ -11,3 +11,4 @@ require 'webmock/rspec'
 require 'omniauth-cas'
 
 OmniAuth.config.logger = Logger.new( '/dev/null' )
+OmniAuth.config.request_validation_phase = nil
