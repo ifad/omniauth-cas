@@ -47,6 +47,13 @@ Naming/ConstantName:
   Exclude:
     - 'lib/omniauth/strategies/cas.rb'
 
+# Configuration parameters: ExpectMatchingDefinition, CheckDefinitionPathHierarchy, CheckDefinitionPathHierarchyRoots, Regex, IgnoreExecutableScripts, AllowedAcronyms.
+# CheckDefinitionPathHierarchyRoots: lib, spec, test, src
+# AllowedAcronyms: CLI, DSL, ACL, API, ASCII, CPU, CSS, DNS, EOF, GUID, HTML, HTTP, HTTPS, ID, IP, JSON, LHS, QPS, RAM, RHS, RPC, SLA, SMTP, SQL, SSH, TCP, TLS, TTL, UDP, UI, UID, UUID, URI, URL, UTF8, VM, XML, XMPP, XSRF, XSS
+Naming/FileName:
+  Exclude:
+    - 'lib/omniauth-cas.rb'
+
 RSpec/AnyInstance:
   Exclude:
     - 'spec/omniauth/strategies/cas_spec.rb'

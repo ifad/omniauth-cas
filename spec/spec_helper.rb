@@ -10,7 +10,7 @@ end
 
 require 'rack/test'
 require 'webmock/rspec'
-require 'omniauth_cas'
+require 'omniauth-cas'
 
 OmniAuth.config.logger = Logger.new('/dev/null')
 OmniAuth.config.request_validation_phase = nil
