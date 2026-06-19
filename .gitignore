@@ -19,3 +19,9 @@ vendor
 
 # RSpec
 .rspec
+
+Gemfile.lock
+test/*.lock
+
+# Local-only smoke runner (AI scratch) — not committed
+Dockerfile.ai

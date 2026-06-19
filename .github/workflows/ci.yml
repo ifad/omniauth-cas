@@ -1,0 +1,25 @@
+name: CI
+on:
+  push:
+    branches: [ master, "upgrade/**" ]
+  pull_request:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { ruby: "4.0.5" }
+          - { ruby: "3.4" }
+          - { ruby: "3.2" }
+    name: "ruby ${{ matrix.ruby }}"
+    env:
+      BUNDLE_GEMFILE: test/Gemfile.ci
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - run: bundle exec ruby test/smoke.rb
