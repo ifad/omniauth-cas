@@ -15,14 +15,17 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Omniauth::Cas::VERSION
 
-  gem.add_dependency 'omniauth',                '~> 1.2'
-  gem.add_dependency 'nokogiri',                '~> 1.5'
-  gem.add_dependency 'addressable',             '~> 2.3'
+  # Covers the fork's consumers (noobs Ruby 2.6, orms 3.0) → 4.0.5.
+  gem.required_ruby_version = '>= 2.6'
 
-  gem.add_development_dependency 'rake',        '~> 10.0'
-  gem.add_development_dependency 'webmock',     '~> 1.19.0'
-  gem.add_development_dependency 'rspec',       '~> 3.1.0'
-  gem.add_development_dependency 'rack-test',   '~> 0.6'
+  gem.add_dependency 'omniauth',                '~> 2.0' # was ~> 1.2 (1.x is incompatible with Rack 3)
+  gem.add_dependency 'nokogiri',                '>= 1.10'
+  gem.add_dependency 'addressable',             '>= 2.3'
+
+  gem.add_development_dependency 'rake'
+  gem.add_development_dependency 'webmock'
+  gem.add_development_dependency 'rspec'
+  gem.add_development_dependency 'rack-test'
 
   gem.add_development_dependency 'awesome_print'
 end

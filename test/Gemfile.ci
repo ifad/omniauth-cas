@@ -1,0 +1,7 @@
+source 'https://rubygems.org'
+ci = ->(name, default = nil) { v = ENV[name].to_s.strip; v.empty? ? default : v }
+gem 'omniauth-cas', path: '..'
+gem 'omniauth', ci.('OMNIAUTH_VERSION', '~> 2.0')
+gem 'rack'
+gem 'rackup'        # Rack 3 split the server/handlers out; harmless if unused
+gem 'rack-session'  # Rack 3 moved Rack::Session::Cookie into its own gem
