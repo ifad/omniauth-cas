@@ -3,23 +3,27 @@ on:
   push:
     branches: [ master, "upgrade/**" ]
   pull_request:
+
 jobs:
   smoke:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - { ruby: "4.0.5" }
-          - { ruby: "3.4" }
-          - { ruby: "3.2" }
+        # Covers the fork's consumers (noobs Ruby 2.6, orms 3.0) up to the 4.0.5
+        # target. omniauth ~> 2.0 resolves omniauth 2.1.x, which runs on 2.6.
+        ruby: ["2.6", "2.7", "3.0", "3.4", "4.0.5"]
     name: "ruby ${{ matrix.ruby }}"
-    env:
-      BUNDLE_GEMFILE: test/Gemfile.ci
     steps:
-      - uses: actions/checkout@v6
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
-      - run: bundle exec ruby test/smoke.rb
+      - uses: actions/checkout@v4
+
+      # Run each Ruby from its official Docker image (GitHub-hosted runners can't
+      # install ≤ 2.6). Native amd64, no emulation. FORCE_RUBY_PLATFORM makes
+      # bundler resolve native gems from source instead of a precompiled binary
+      # that floors at ruby ≥ 3.0.
+      - name: smoke
+        run: |
+          docker run --rm -v "$PWD":/gem -w /gem \
+            -e BUNDLE_GEMFILE=test/Gemfile.ci -e BUNDLE_FORCE_RUBY_PLATFORM=true \
+            "ruby:${{ matrix.ruby }}" \
+            bash -c 'rm -f test/*.lock && bundle install --quiet && bundle exec ruby test/smoke.rb'

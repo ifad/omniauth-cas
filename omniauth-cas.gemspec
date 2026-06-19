@@ -15,6 +15,9 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Omniauth::Cas::VERSION
 
+  # Covers the fork's consumers (noobs Ruby 2.6, orms 3.0) → 4.0.5.
+  gem.required_ruby_version = '>= 2.6'
+
   gem.add_dependency 'omniauth',                '~> 2.0' # was ~> 1.2 (1.x is incompatible with Rack 3)
   gem.add_dependency 'nokogiri',                '>= 1.10'
   gem.add_dependency 'addressable',             '>= 2.3'
